@@ -13,6 +13,10 @@ Window {
         property int temperature: 0
        // property real x: 30
         //property real y: 100
+        property var fp: [drawTimeDate, drawForeCast, drawTemperatures];
+        property int idx: 0
+
+
 
         anchors.fill: parent
         id: canvas
@@ -25,31 +29,50 @@ Window {
             ctx.fillStyle = "lime green"
             ctx.beginPath();
 
-
-            drawTimeDate(ctx,30,100,"108px sans serif");
-
+            if(time.sec % 5 == 0) {
+                if(++canvas.idx > 2) {
+                    canvas.idx = 0;
+                }
+            }
+            drawTimeDate(ctx);
+            //fp[idx](ctx);
 
             ctx.stroke();
         }
 
     }
 
-    function drawTimeLine(ctx,x,y,bigFont,smallFont,showSec) {
-        ctx.font = bigFont;
-        const txt = "" + time.hour + ":" + fillupNumber(time.min,2,'0');
+    function drawTimeLine(ctx,fontSize,showSec) {
+        ctx.font = "" + fontSize + "px sans serif";
+        var txt = "" + time.hour + ":" + fillupNumber(time.min,2,'0');
+        var w = ctx.measureText(txt).width;
+        var x = (50 + canvas.width - w) / 2;
+        var y = (canvas.height / 3) * 2;
         ctx.fillText(txt,x,y);
-        if(showSec) { /*
-            const pos = x + ctx.measureText(txt).width;
-            ctx.font = smallFont;
-            ctx.fillText(fillupNumber(time.sec,2,'0'),pos,y); */
+        if(showSec) {
+            x += w;
+            ctx.font = "" + (fontSize/2) + "px sans serif";
+            ctx.fillText(fillupNumber(time.sec,2,'0'),x,y);
         }
     }
 
-    function drawTimeDate(ctx,x,y,font) {
-        ctx.font = font;
+    function drawTimeDate(ctx) {
+        ctx.font = "108px sans serif";
+        var x  = (canvas.width - ctx.measureText(canvas.date).width) / 2;
+        var y  = canvas.height / 3;
+
         ctx.fillText(canvas.date,x,y);
-        y = 550;
-        drawTimeLine(ctx,x,y,"108px sans serif","108px sans serif",true);
+        drawTimeLine(ctx,148,true);
+    }
+
+    function drawForeCast(ctx,x,y,font) {
+        ctx.font = font;
+        ctx.fillText("Weather - Forecast",x,y);
+    }
+
+    function drawTemperatures(ctx,x,y,font) {
+        ctx.font = font;
+        ctx.fillText("Temperatures - Pressures",x,y);
     }
 
     Timer {
